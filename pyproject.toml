@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "pykubeslurm"
+version = "0.1.0"
+description = "A Python operator for efficient job scheduling in Slurm using Kubernetes"
+authors = ["Matheus Tosta <me@mtosta.dev>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+kubernetes = "^27.2.0"
+pydantic = "^2.1.1"
+typer = "^0.9.0"
+rich = "^13.5.2"
+focalize = "^0.1.0"
+httpx = "^0.25.0"
+pyjwt = "^2.8.0"
+pydantic-settings = "^2.0.3"
+cryptography = "^41.0.4"
+python-jose = "^3.3.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.284"
+black = "^23.7.0"
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+pytest-env = "^0.8.2"
+mypy = "^1.5.0"
+pytest-random-order = "^1.1.0"
+pytest-sugar = "^0.9.7"
+mkdocs-material = "^9.1.21"
+mkdocstrings = "^0.22.0"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--random-order --cov=pykubeslurm --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+src = ["pykubeslurm", "tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+follow_imports = "silent"
+
+[tool.poetry.scripts]
+pykubeslurm = "pykubeslurm.main:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

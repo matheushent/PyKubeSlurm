@@ -1,0 +1,13 @@
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: example-slurm-job
+script: |
+  #!/bin/bash
+  echo "I'm an example"
+cpus_per_task: 1
+standard_error: "/tmp/err.log"
+standard_output: "/tmp/out.log"
+current_working_directory: "/tmp"
+time_limit: 90
+name: echoing
