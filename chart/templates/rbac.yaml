@@ -1,0 +1,23 @@
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "chart.fullname" . }}-role
+rules:
+  - apiGroups: ["mhtosta.engineering"]
+    resources: ["slurmjobs"]
+    verbs: ["get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "chart.fullname" . }}-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "chart.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "chart.fullname" . }}-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

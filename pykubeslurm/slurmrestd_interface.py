@@ -8,9 +8,9 @@ import sys
 import typing
 from datetime import datetime, timedelta
 
-from jose import jwt
-from jose.exceptions import ExpiredSignatureError, JWTError, JWTClaimsError
 import httpx
+from jose import jwt
+from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 from loguru import logger
 
 from pykubeslurm.settings import SETTINGS
@@ -23,14 +23,19 @@ def _load_jwt_key_string() -> str:
     Returns:
         str: The Slurmrestd JWT key string.
     """
+    assert hasattr(logger, "focus")  # make mypy happy
     with logger.focus("PyKubeSlurm - Load Slurmrestd JWT Key"):
         try:
             secret_key = open(SETTINGS.SLURMRESTD_JWT_KEY_PATH, "r").read()
         except FileNotFoundError:
-            logger.error(f"Couldn't find the slurmrestd JWT key file at {SETTINGS.SLURMRESTD_JWT_KEY_PATH}")
+            logger.error(
+                f"Couldn't find the slurmrestd JWT key file at {SETTINGS.SLURMRESTD_JWT_KEY_PATH}"
+            )
             sys.exit(1)
         except PermissionError:
-            logger.error(f"Couldn't read the slurmrestd JWT key file at {SETTINGS.SLURMRESTD_JWT_KEY_PATH} (missing permissions)")
+            logger.error(
+                f"Couldn't read the slurmrestd JWT key file at {SETTINGS.SLURMRESTD_JWT_KEY_PATH} (missing permissions)"
+            )
             sys.exit(1)
 
     return secret_key
@@ -51,18 +56,25 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     if not token_path.exists():
         return None
 
+    assert hasattr(logger, "focus")  # make mypy happy
     with logger.focus("PyKubeSlurm - Load Slurmrestd Token from Cache"):
         try:
             token = token_path.read_text().strip()
         except Exception:
-            logger.warning(f"Couldn't load token from cache file {token_path}. Will acquire a new one")
+            logger.warning(
+                f"Couldn't load token from cache file {token_path}. Will acquire a new one"
+            )
             return None
 
     secret_key = _load_jwt_key_string()
 
     with logger.focus("PyKubeSlurm - Decode Existing Token from Cache"):
         try:
-            jwt.decode(token, secret_key, options=dict(verify_signature=False, verify_exp=True, leeway=-10))
+            jwt.decode(
+                token,
+                secret_key,
+                options=dict(verify_signature=False, verify_exp=True, leeway=-10),
+            )
         except ExpiredSignatureError:
             logger.warning("Cached token is expired. Will acquire a new one.")
             return None
@@ -76,13 +88,14 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     return token
 
 
-def _write_token_to_cache(token: str):
+def _write_token_to_cache(token: str) -> None:
     """
     Write the Slurmrestd token to the cache.
 
     Args:
         token (str): The Slurmrestd auth token
     """
+    assert hasattr(logger, "focus")  # make mypy happy
     with logger.focus("PyKubeSlurm - Write Token to Cache"):
         if not SETTINGS.CACHE_DIR.exists():
             logger.debug("Attempting to create missing cache directory")
@@ -113,6 +126,7 @@ def acquire_token(username: str) -> str:
     Returns:
         str: The JWT token.
     """
+    assert hasattr(logger, "focus")  # make mypy happy
     with logger.focus("PyKubeSlurm - Generate JWT Token"):
         logger.debug("Attempting to use cached token")
         token = _load_token_from_cache()
@@ -168,7 +182,7 @@ class BackendClient(httpx.Client):
 
     _token: typing.Optional[str]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._token = None
         super().__init__(
             base_url=SETTINGS.SLURMRESTD_ENDPOINT,
@@ -181,12 +195,14 @@ class BackendClient(httpx.Client):
         )
 
     @staticmethod
-    def _log_request(request: httpx.Request):
+    def _log_request(request: httpx.Request) -> None:
+        assert hasattr(logger, "focus")  # make mypy happy
         with logger.focus("PyKubeSlurm - Make Request to the Slurmrestd API"):
             logger.debug(f"Making request: {request.method} {request.url}")
 
     @staticmethod
-    def _log_response(response: httpx.Response):
+    def _log_response(response: httpx.Response) -> None:
+        assert hasattr(logger, "focus")  # make mypy happy
         with logger.focus("PyKubeSlurm - Request Completed"):
             logger.debug(
                 f"Received response: {response.request.method} "

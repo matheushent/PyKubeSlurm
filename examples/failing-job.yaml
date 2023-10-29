@@ -1,0 +1,15 @@
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: slurm-failing-job
+spec:
+  script: |
+    #!/bin/bash
+    echo "I'm an example"
+    exit 1
+  cpus_per_task: 1
+  standard_error: "/tmp/failing-err.log"
+  standard_output: "/tmp/failing-out.log"
+  current_working_directory: "/tmp"
+  time_limit: 90
+  name: failing---

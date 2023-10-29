@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "chart.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "chart.selectorLabels" . | nindent 6 }}
@@ -27,24 +25,67 @@ spec:
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: jwt-key-volume
+          {{- if .Values.pykubeslurm.jwtKeyFromSecret }}
+          secret:
+            secretName: {{ .Values.pykubeslurm.jwtKeyResourceName }}
+          {{- else }}
+          configMap:
+            name: {{ .Values.pykubeslurm.jwtKeyResourceName }}
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          volumeMounts:
+            - name: jwt-key
+              mountPath: {{ .Values.pykubeslurm.config.slurmrestdJwtKeyPath | printf "%s" }}
+              {{- if not .Values.pykubeslurm.jwtKeyFromSecret }}
+              subPath: {{ .Values.pykubeslurm.config.slurmrestdJwtKeyPath | splitList "/" | last }}
+              {{- end }}
+              readOnly: true
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.pykubeslurm.config.healthCheckPort }}
               protocol: TCP
+          env:
+            - name: DEBUG_LEVEL
+              value: {{ .Values.pykubeslurm.config.debugLevel }}
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: EVENT_LISTENER_TIMEOUT
+              value: {{ .Values.pykubeslurm.config.eventListenerTimeout }}
+            - name: SLURMRESTD_USER_TOKEN
+              value: {{ .Values.pykubeslurm.config.slurmrestdUserToken }}
+            - name: SLURMRESTD_JWT_KEY_PATH
+              value: {{ .Values.pykubeslurm.config.slurmrestdJwtKeyPath }}
+            - name: CACHE_DIR
+              value: /.pykubeslurm/cache
+            - name: SLURMRESTD_TIMEOUT
+              value: {{ .Values.pykubeslurm.config.slurmrestdTimeout }}
+            - name: SLURMRESTD_ENDPOINT
+              value: {{ .Values.pykubeslurm.config.slurmrestdUrl }}
+            - name: SLURMRESTD_EXP_TIME_IN_SECONDS
+              value: {{ .Values.pykubeslurm.config.slurmrestdExpTime }}
+            - name: RECONCILIATION_TIME
+              value: {{ .Values.pykubeslurm.config.reconciliationInterval }}
+            - name: HEALTH_CHECK_ADDRESS
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: HEALTH_CHECK_PORT
+              value: {{ .Values.pykubeslurm.config.healthCheckPort }}
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+            successThreshold: 1
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

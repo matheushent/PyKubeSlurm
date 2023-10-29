@@ -1,0 +1,64 @@
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: example-slurm-job--midnight
+spec:
+  script: |
+    #!/bin/bash
+    echo "I'm an example"
+  cpus_per_task: 1
+  standard_error: "/tmp/err.log"
+  standard_output: "/tmp/out.log"
+  current_working_directory: "/tmp"
+  time_limit: 90
+  name: midnight-job
+  begin_time: midnight
+---
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: example-slurm-job--today
+spec:
+  script: |
+    #!/bin/bash
+    echo "I'm an example"
+  cpus_per_task: 1
+  standard_error: "/tmp/err.log"
+  standard_output: "/tmp/out.log"
+  current_working_directory: "/tmp"
+  time_limit: 90
+  name: today-job
+  begin_time: today
+---
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: example-slurm-job--1hour
+spec:
+  script: |
+    #!/bin/bash
+    echo "I'm an example"
+  cpus_per_task: 1
+  standard_error: "/tmp/err.log"
+  standard_output: "/tmp/out.log"
+  current_working_directory: "/tmp"
+  time_limit: 90
+  name: now-job-1hour
+  begin_time: now+1hour
+---
+apiVersion: mhtosta.engineering/v1alpha1
+kind: SlurmJob
+metadata:
+  name: example-slurm-job--specific-date
+spec:
+  script: |
+    #!/bin/bash
+    echo "I'm an example"
+  cpus_per_task: 1
+  standard_error: "/tmp/err.log"
+  standard_output: "/tmp/out.log"
+  current_working_directory: "/tmp"
+  time_limit: 90
+  name: example
+  begin_time: 2023-10-28T12:00:00
+---

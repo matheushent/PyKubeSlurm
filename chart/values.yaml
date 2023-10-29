@@ -5,10 +5,14 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: pykubeslurm
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+rbac:
+  # Specifies whether rbac resources should be created
+  create: true
 
 imagePullSecrets: []
 nameOverride: ""
@@ -21,7 +25,30 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: "pykubeslurm"
+
+pykubeslurm:
+  jwtKeyResourceName: pykubeslurm-jwt-key
+  jwtKeyFromSecret: true  # Set to 'true' to use Secret, 'false' to use ConfigMap
+  config:
+    # Specifies the debug level for the PyKubeSlurm app
+    debugLevel: DEBUG
+    # Specifies the timeout in seconds for which the app will sleep in case any error occurs
+    eventListenerTimeout: 10
+    # Specifies which user to call Slurmrestd resources on behalf of
+    slurmrestdUserToken: ubuntu
+    # Specifies the timeout in seconds for which the app will wait for a response from the Slurm REST API
+    slurmrestdTimeout: 10
+    # Specifies the URL of the Slurm REST API
+    slurmrestdUrl: http://slurmrestd:6820
+    # Specifies the path to the JWT key file
+    slurmrestdJwtKeyPath: /etc/pykubeslurm/jwt.key
+    # Specifies the time in seconds for which Slurmrestd tokens will be valid
+    slurmrestdExpTime: 3600
+    # Specifies the time in seconds for the reconciliation interval
+    reconciliationInterval: 60
+    # Specifies the health check port which the app will listen for health checks
+    healthCheckPort: 8080
 
 podAnnotations: {}
 
@@ -36,26 +63,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -67,13 +74,6 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

@@ -1,0 +1,9 @@
+.*
+node_modules
+logs
+.git
+.ruff_cache
+.pytest_cache
+chart
+crds
+examples

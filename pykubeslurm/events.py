@@ -2,41 +2,32 @@
 import threading
 import time
 
-from kubernetes import watch, client
+from kubernetes import client, watch
 from loguru import logger
 
-from pykubeslurm.settings import SETTINGS
-from pykubeslurm.schemas import KubernetesEvent
 from pykubeslurm.helpers import handle_k8s_event
+from pykubeslurm.schemas import KubernetesEvent
+from pykubeslurm.settings import SETTINGS
+
 
 def event_listener(
     thread_event: threading.Event,
-):
+) -> None:
     """Listen for kubernetes events."""
+    assert hasattr(logger, "focus")  # make mypy happy
     with logger.focus("PyKubeSlurm - Event listener logic"):
         logger.debug(f"Started thread. ID: {threading.get_ident()}")
         w = watch.Watch()
         while not thread_event.is_set():
             try:
-                if SETTINGS.WATCH_ALL:
-                    logger.warning("WATCH_ALL is set. Ignoring NAMESPACE setting then.")
-                    for event in w.stream(
-                        client.CustomObjectsApi().list_cluster_custom_object,
-                        group=SETTINGS.CRD_GROUP,
-                        version=SETTINGS.CRD_VERSION,
-                        plural=SETTINGS.JOB_CRD_PLURAL,
-                    ):
-                        handle_k8s_event(KubernetesEvent(**event))
-                else:
-                    logger.warning("WATCH_ALL is not set. Using NAMESPACE setting.")
-                    for event in w.stream(
-                        client.CustomObjectsApi().list_namespaced_custom_object,
-                        group=SETTINGS.CRD_GROUP,
-                        version=SETTINGS.CRD_VERSION,
-                        namespace=SETTINGS.NAMESPACE,
-                        plural=SETTINGS.JOB_CRD_PLURAL
-                    ):
-                        handle_k8s_event(KubernetesEvent(**event))
+                for event in w.stream(
+                    client.CustomObjectsApi().list_namespaced_custom_object,
+                    group=SETTINGS.CRD_GROUP,
+                    version=SETTINGS.CRD_VERSION,
+                    namespace=SETTINGS.NAMESPACE,
+                    plural=SETTINGS.JOB_CRD_PLURAL,
+                ):
+                    handle_k8s_event(KubernetesEvent(**event))
             except Exception as err:
                 # keep thread alive
                 logger.exception(err)
