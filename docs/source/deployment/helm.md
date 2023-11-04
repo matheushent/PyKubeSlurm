@@ -67,3 +67,35 @@ This command will remove the PyKubeSlurm deployment and associated resources. No
 ## Appendix: Helm Chart Values
 
 The following is an explanation of Helm chart values that you can customize in the `values.yaml` file when deploying PyKubeSlurm:
+
+| Value                                | Description                                      | Default                          |
+| ------------------------------------ | ------------------------------------------------ | -------------------------------- |
+| replicaCount                         | Number of pod replicas                          | 1                                |
+| image.repository                     | Container image repository                       | matheushent/pykubeslurm           |
+| image.pullPolicy                     | Container image pull policy                      | IfNotPresent                     |
+| image.tag                            | Container image tag                             | "0.1.0-a1"                       |
+| rbac.create                          | Whether or not to create RBAC resources         | true                             |
+| imagePullSecrets                     | List of image pull secrets                      | [] (empty list)                  |
+| nameOverride                         | Override for Helm chart name                    | "" (empty string)                |
+| fullnameOverride                     | Override for Helm chart full name               | "" (empty string)                |
+| serviceAccount.create                | Create a service account                        | true                             |
+| serviceAccount.annotations            | Annotations for the service account             | {} (empty map)                   |
+| serviceAccount.name                  | Name of the service account                     | "pykubeslurm"                    |
+| pykubeslurm.jwtKeyResourceName        | Name of the JWT key resource on Kubernetes      | pykubeslurm-jwt-key              |
+| pykubeslurm.jwtKeyFromSecret          | Use Secret for JWT key                          | true                             |
+| pykubeslurm.config.debugLevel         | Debug level for the PyKubeSlurm app             | DEBUG                            |
+| pykubeslurm.config.eventListenerTimeout | Timeout for event listener in seconds           | 10                               |
+| pykubeslurm.config.slurmrestdUserToken | User to call Slurmrestd resources on behalf of | ubuntu                           |
+| pykubeslurm.config.slurmrestdTimeout   | Timeout for Slurm REST API in seconds           | 10                               |
+| pykubeslurm.config.slurmrestdUrl       | URL of the Slurm REST API                       | http://slurmrestd:6820           |
+| pykubeslurm.config.slurmrestdJwtKeyPath | Path to the JWT key file                       | /etc/pykubeslurm/jwt.key         |
+| pykubeslurm.config.slurmrestdExpTime   | Token expiration time in seconds                | 3600                             |
+| pykubeslurm.config.reconciliationInterval | Reconciliation interval in seconds             | 60                               |
+| pykubeslurm.config.healthCheckPort     | Health check port                               | 8080                             |
+| podAnnotations                       | Annotations for the pod                         | {} (empty map)                   |
+| podSecurityContext                   | Pod security context                            | {} (empty map)                   |
+| securityContext                      | Container security context                      | {} (empty map)                   |
+| resources                            | Resource limits and requests                    | {} (empty map)                   |
+| nodeSelector                         | Node selector for pod placement                 | {} (empty map)                   |
+| tolerations                          | Tolerations for pod scheduling                  | [] (empty list)                  |
+| affinity                             | Node affinity for pod placement                 | {} (empty map)                   |

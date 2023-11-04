@@ -26,7 +26,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        - name: jwt-key-volume
+        - name: jwt-key
           {{- if .Values.pykubeslurm.jwtKeyFromSecret }}
           secret:
             secretName: {{ .Values.pykubeslurm.jwtKeyResourceName }}
@@ -43,6 +43,11 @@ spec:
               subPath: {{ .Values.pykubeslurm.config.slurmrestdJwtKeyPath | splitList "/" | last }}
               {{- end }}
               readOnly: true
+          command:
+            - poetry
+            - run
+            - pykubeslurm
+            - run
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -57,7 +62,7 @@ spec:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
             - name: EVENT_LISTENER_TIMEOUT
-              value: {{ .Values.pykubeslurm.config.eventListenerTimeout }}
+              value: "{{ .Values.pykubeslurm.config.eventListenerTimeout }}"
             - name: SLURMRESTD_USER_TOKEN
               value: {{ .Values.pykubeslurm.config.slurmrestdUserToken }}
             - name: SLURMRESTD_JWT_KEY_PATH
@@ -65,19 +70,19 @@ spec:
             - name: CACHE_DIR
               value: /.pykubeslurm/cache
             - name: SLURMRESTD_TIMEOUT
-              value: {{ .Values.pykubeslurm.config.slurmrestdTimeout }}
+              value: "{{ .Values.pykubeslurm.config.slurmrestdTimeout }}"
             - name: SLURMRESTD_ENDPOINT
               value: {{ .Values.pykubeslurm.config.slurmrestdUrl }}
             - name: SLURMRESTD_EXP_TIME_IN_SECONDS
-              value: {{ .Values.pykubeslurm.config.slurmrestdExpTime }}
+              value: "{{ .Values.pykubeslurm.config.slurmrestdExpTime }}"
             - name: RECONCILIATION_TIME
-              value: {{ .Values.pykubeslurm.config.reconciliationInterval }}
+              value: "{{ .Values.pykubeslurm.config.reconciliationInterval }}"
             - name: HEALTH_CHECK_ADDRESS
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
             - name: HEALTH_CHECK_PORT
-              value: {{ .Values.pykubeslurm.config.healthCheckPort }}
+              value: "{{ .Values.pykubeslurm.config.healthCheckPort }}"
           livenessProbe:
             httpGet:
               path: /health

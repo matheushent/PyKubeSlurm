@@ -31,12 +31,17 @@ pytest-env = "^0.8.2"
 mypy = "^1.6.1"
 pytest-random-order = "^1.1.0"
 pytest-sugar = "^0.9.7"
-mkdocs-material = "^9.1.21"
-mkdocstrings = {extras = ["python"], version = "^0.23.0"}
 isort = "^5.12.0"
 pytest-aiohttp = "^1.0.5"
 freezegun = "^1.2.2"
 ops = "^2.8.0"
+
+
+[tool.poetry.group.docs.dependencies]
+constructs = "^10.3.0"
+aws-cdk-lib = "^2.104.0"
+mkdocs-material = "^9.4.7"
+mkdocstrings = {version = "0.23.0", extras = ["python"]}
 pygments = "^2.16.1"
 
 [tool.pytest.ini_options]
@@ -49,7 +54,8 @@ env = [
 
 [tool.coverage.report]
 omit = [
-    "pykubeslurm/vars.py"
+    "pykubeslurm/vars.py",
+    "pykubeslurm/errors.py"
 ]
 
 [tool.black]

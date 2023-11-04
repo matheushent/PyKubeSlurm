@@ -1,0 +1,49 @@
+name: Quality Assurance Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  qa:
+    name: Run the Quality Assurance
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: 1.5.1
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+
+      - name: Cache Mypy
+        uses: actions/cache@v3
+        with:
+          path: ~/.mypy_cache
+          key: ${{ runner.os }}-mypy-${{ hashFiles('.mypy-cache/CACHEDIR.TAG') }}
+
+      - name: Cache Pytest
+        uses: actions/cache@v3
+        with:
+          path: ./.pytest_cache
+          key: ${{ runner.os }}-pytest-${{ hashFiles('.pytest_cache/CACHEDIR.TAG') }}
+
+      - name: Run the Quality Assurance GNU target
+        run: |
+          make qa

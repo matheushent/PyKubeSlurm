@@ -1,5 +1,5 @@
 apiVersion: v2
-name: PyKubeSlurm
+name: pykubeslurm
 description: The PyKubeSlurm Helm chart for Kubernetes.
 
 type: application

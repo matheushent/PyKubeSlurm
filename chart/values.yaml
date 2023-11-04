@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: pykubeslurm
+  repository: matheushent/pykubeslurm
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "0.1.0-a1"
 
 rbac:
   # Specifies whether rbac resources should be created

@@ -1,0 +1,6 @@
+{
+	"app":"poetry run python ./docs/site.py",
+	"context":{
+		"@aws-cdk/core:newStyleStackSynthesis":true
+	}
+}

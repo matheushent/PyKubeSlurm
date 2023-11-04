@@ -1,10 +1,10 @@
 """Core module for general helper functions."""
 import asyncio
 import json
+from collections.abc import Coroutine
 from datetime import datetime
 from string import Template
 from typing import Any
-from collections.abc import Coroutine
 
 from kubernetes import client
 from loguru import logger
